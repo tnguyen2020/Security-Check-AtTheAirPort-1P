@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✈️ Airport Security Check Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #1a1a2e;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ========== STUDENT SECTION (TOP) ========== */
+        #student-section {
+            height: 50vh;
+            background: linear-gradient(135deg, #0f3460, #16213e);
+            border-bottom: 5px solid #e94560;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        #student-label {
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            background: #e94560;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        #score-display {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            background: #f5a623;
+            color: #1a1a2e;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        #scenario-number {
+            color: #a0a0c0;
+            font-size: 14px;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        #scenario-title {
+            color: #f5a623;
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        #question-box {
+            background: rgba(255,255,255,0.08);
+            border: 2px solid #e94560;
+            border-radius: 15px;
+            padding: 20px 30px;
+            max-width: 750px;
+            width: 100%;
+            text-align: center;
+        }
+
+        #question-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        #question-text {
+            color: #ffffff;
+            font-size: 20px;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        #instruction-tag {
+            margin-top: 12px;
+            color: #00d4aa;
+            font-size: 13px;
+            font-style: italic;
+        }
+
+        /* ========== TEACHER SECTION (BOTTOM) ========== */
+        #teacher-section {
+            height: 50vh;
+            background: linear-gradient(135deg, #16213e, #0f3460);
+            padding: 15px 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        #teacher-label {
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            background: #00d4aa;
+            color: #1a1a2e;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        #options-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            max-width: 800px;
+            margin-bottom: 15px;
+        }
+
+        .option-btn {
+            background: rgba(255,255,255,0.08);
+            border: 2px solid #a0a0c0;
+            color: #ffffff;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 180px;
+            text-align: center;
+        }
+
+        .option-btn:hover {
+            background: rgba(255,255,255,0.15);
+            border-color: #f5a623;
+            transform: translateY(-2px);
+        }
+
+        .option-btn.correct {
+            background: #00d4aa;
+            border-color: #00d4aa;
+            color: #1a1a2e;
+            font-weight: bold;
+        }
+
+        .option-btn.wrong {
+            background: #e94560;
+            border-color: #e94560;
+            color: white;
+        }
+
+        .option-btn.disabled {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        #feedback-box {
+            max-width: 750px;
+            width: 100%;
+            text-align: center;
+            min-height: 60px;
+        }
+
+        #feedback-text {
+            font-size: 15px;
+            line-height: 1.5;
+            color: #ffffff;
+            background: rgba(255,255,255,0.06);
+            border-radius: 10px;
+            padding: 10px 20px;
+            display: none;
+        }
+
+        #feedback-text.show {
+            display: block;
+        }
+
+        #feedback-text.correct-feedback {
+            border-left: 4px solid #00d4aa;
+            color: #00d4aa;
+        }
+
+        #feedback-text.wrong-feedback {
+            border-left: 4px solid #e94560;
+            color: #ffaaaa;
+        }
+
+        #btn-row {
+            display: flex;
+            gap: 15px;
+            margin-top: 12px;
+        }
+
+        #next-btn {
+            background: #f5a623;
+            border: none;
+            color: #1a1a2e;
+            padding: 10px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            display: none;
+            transition: all 0.3s;
+        }
+
+        #next-btn:hover {
+            background: #ffbe4f;
+            transform: translateY(-2px);
+        }
+
+        #hint-btn {
+            background: transparent;
+            border: 2px solid #a0a0c0;
+            color: #a0a0c0;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        #hint-btn:hover {
+            border-color: #f5a623;
+            color: #f5a623;
+        }
+
+        /* ========== START SCREEN ========== */
+        #start-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, #0f3460, #1a1a2e);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            text-align: center;
+            padding: 30px;
+        }
+
+        #start-screen h1 {
+            color: #f5a623;
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        #start-screen p {
+            color: #a0a0c0;
+            font-size: 16px;
+            max-width: 600px;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .start-rules {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid #e94560;
+            border-radius: 15px;
+            padding: 20px 30px;
+            max-width: 600px;
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        .start-rules h3 {
+            color: #e94560;
+            margin-bottom: 10px;
+        }
+
+        .start-rules li {
+            color: #c0c0d0;
+            margin-bottom: 8px;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        #start-btn {
+            background: #e94560;
+            border: none;
+            color: white;
+            padding: 15px 50px;
+            border-radius: 30px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+        }
+
+        #start-btn:hover {
+            background: #ff6b6b;
+            transform: scale(1.05);
+        }
+
+        /* ========== END SCREEN ========== */
+        #end-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, #0f3460, #1a1a2e);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            text-align: center;
+            padding: 30px;
+        }
+
+        #end-screen h1 {
+            font-size: 50px;
+            margin-bottom: 10px;
+        }
+
+        #end-title {
+            color: #f5a623;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        #final-score {
+            color: #00d4aa;
+            font-size: 50px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        #end-message {
+            color: #c0c0d0;
+            font-size: 18px;
+            max-width: 500px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        #restart-btn {
+            background: #e94560;
+            border: none;
+            color: white;
+            padding: 12px 40px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        #restart-btn:hover {
+            background: #ff6b6b;
+            transform: scale(1.05);
+        }
+
+        /* divider line */
+        #divider-line {
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, #e94560, #f5a623, #00d4aa);
+        }
+
+        .highlight {
+            color: #f5a623;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ========== START SCREEN ========== -->
+<div id="start-screen">
+    <div style="font-size:60px; margin-bottom:10px;">✈️🔪🦘</div>
+    <h1>Airport Security Check</h1>
+    <p style="color:#f5a623; font-size:18px; font-weight:bold;">
+        Australia Bound — Meat Butcher Edition
+    </p>
+    <p>Practice real airport security situations before your big trip to Australia!</p>
+
+    <div class="start-rules">
+        <h3>📋 How To Play</h3>
+        <ul>
+            <li>🎓 <span class="highlight">Student:</span> Read the question on the TOP half of the screen OUT LOUD</li>
+            <li>👨‍🏫 <span class="highlight">Teacher:</span> Listen and choose your answer from the BOTTOM half</li>
+            <li>💬 Discuss together why the answer is correct or wrong</li>
+            <li>🏆 Try to get the highest score possible!</li>
+            <li>📦 <span class="highlight">10 real scenarios</span> based on Australian customs rules</li>
+        </ul>
+    </div>
+
+    <button id="start-btn" onclick="startGame()">🚀 START GAME</button>
+</div>
+
+<!-- ========== MAIN GAME ========== -->
+
+<!-- STUDENT TOP SECTION -->
+<div id="student-section">
+    <div id="student-label">🎓 STUDENT — READ THIS OUT LOUD</div>
+    <div id="score-display">⭐ Score: <span id="score-num">0</span> / 10</div>
+    <div id="scenario-number">Scenario 1 of 10</div>
+    <div id="scenario-title">Loading...</div>
+    <div id="question-box">
+        <div id="question-icon">❓</div>
+        <div id="question-text">Loading question...</div>
+        <div id="instruction-tag">📢 Read this question out loud to your teacher!</div>
+    </div>
+</div>
+
+<div id="divider-line"></div>
+
+<!-- TEACHER BOTTOM SECTION -->
+<div id="teacher-section">
+    <div id="teacher-label">👨‍🏫 TEACHER — CHOOSE YOUR ANSWER</div>
+
+    <div id="options-container">
+        <!-- Options injected by JS -->
+    </div>
+
+    <div id="feedback-box">
+        <div id="feedback-text"></div>
+    </div>
+
+    <div id="btn-row">
+        <button id="hint-btn" onclick="showHint()">💡 Hint</button>
+        <button id="next-btn" onclick="nextQuestion()">Next ➡️</button>
+    </div>
+</div>
+
+<!-- ========== END SCREEN ========== -->
+<div id="end-screen">
+    <div id="end-emoji" style="font-size:60px;">🏆</div>
+    <h1 id="end-title">Game Complete!</h1>
+    <div id="final-score">0 / 10</div>
+    <div id="end-message">Loading result...</div>
+    <button id="restart-btn" onclick="restartGame()">🔄 Play Again</button>
+</div>
+
+
+<script>
+// ============================================================
+//  GAME DATA — 10 Scenarios
+// ============================================================
+const scenarios = [
+    {
+        number: 1,
+        title: "📝 Filling the Incoming Passenger Card",
+        icon: "📋",
+        question: "You are arriving in Australia. The customs officer gives you an Incoming Passenger Card. You are carrying a set of butcher knives in your checked luggage. What should you do on the card?",
+        options: [
+            "A) Leave the goods section blank — knives are not food",
+            "B) Declare the knives by ticking YES on the goods declaration",
+            "C) Throw the card away, it is not important",
+            "D) Only declare them if they are worth more than \$900 AUD"
+        ],
+        correct: 1,
+        feedback: "✅ CORRECT! In Australia, you MUST declare all goods that could be a biosecurity risk or any items over \$900 AUD value. Professional butcher knives should always be declared. Failure to declare can result in a fine of up to \$444 AUD on the spot!",
+        hint: "Australia is very strict about biosecurity. Think — butcher knives may have had contact with meat or animal products."
+    },
+    {
+        number: 2,
+        title: "🥩 Carrying Meat Products in Your Bag",
+        icon: "🥩",
+        question: "You are a meat butcher travelling to Australia. You packed some dried beef jerky from home as a snack for the flight. You arrive at Australian customs. What should you do with the jerky?",
+        options: [
+            "A) Eat it quickly before you get to customs",
+            "B) Hide it inside your clothes — it is only a small amount",
+            "C) Declare it on your Passenger Card and show it to the officer",
+            "D) Put it in your carry-on bag so they cannot scan it"
+        ],
+        correct: 2,
+        feedback: "✅ CORRECT! Australia has very strict biosecurity laws. ALL meat products — including dried, cooked, or packaged meat — must be declared. Some may be allowed, some may be confiscated, but you MUST declare them. Hiding food is illegal and can result in heavy fines.",
+        hint: "Australia protects its agriculture from disease. Even cooked or dried meat can carry pathogens."
+    },
+    {
+        number: 3,
+        title: "🔪 Butcher Tools in Hand Luggage",
+        icon: "🔪",
+        question: "You have a favourite small boning knife that you want to bring to Australia for your butcher work. You want to pack it in your CARRY-ON bag so it does not get lost. Is this allowed?",
+        options: [
+            "A) Yes, small knives under 6cm are allowed in carry-on",
+            "B) Yes, if you wrap it in a cloth",
+            "C) No — all knives must go in CHECKED luggage only",
+            "D) Yes, if you show it to the flight crew first"
+        ],
+        correct: 2,
+        feedback: "✅ CORRECT! Knives and sharp objects are NEVER allowed in carry-on luggage on any international flight. They must always be packed in CHECKED baggage and should be wrapped safely to protect baggage handlers. This is a global aviation security rule.",
+        hint: "Think about what could be used as a weapon on a plane. What is the safest place for sharp tools?"
+    },
+    {
+        number: 4,
+        title: "🧳 Customs Declaration — What to Declare",
+        icon: "📦",
+        question: "You are arriving in Australia with these items: butcher apron, meat thermometer, used cutting gloves, and a brand new knife set worth \$250 AUD. Which items MUST you declare to Australian customs?",
+        options: [
+            "A) Only the knife set because it is worth money",
+            "B) Only items worth more than \$900 AUD need to be declared",
+            "C) The used cutting gloves and apron because they had contact with meat",
+            "D) You do not need to declare any of these items"
+        ],
+        correct: 2,
+        feedback: "✅ CORRECT! Used equipment that has been in contact with animals or animal products (meat, blood, bone) is a BIOSECURITY RISK and MUST be declared. The apron and gloves had contact with meat. The knife set should also be declared. Always declare when in doubt!",
+        hint: "Biosecurity risk = anything that touched animals, meat, soil, or plants. Even clean-looking items may carry diseases."
+    },
+    {
+        number: 5,
+        title: "🐄 Working with Animals in Australia",
+        icon: "🐄",
+        question: "You are going to work as a meat butcher in Australia. The customs officer asks: 'Will you be working with animals or animal products during your visit?' What is the best answer?",
+        options: [
+            "A) Say NO — butchers work with meat, not live animals",
+            "B) Say YES — butchers work with animal products (meat)",
+            "C) Say you are not sure and walk away quickly",
+            "D) Say it depends on the day"
+        ],
+        correct: 1,
+        feedback: "✅ CORRECT! Meat IS an animal product. You must honestly answer YES. Working with animal products is relevant to biosecurity screening. Lying to a customs officer is a serious criminal offence in Australia. Always be honest — officers are trained to verify your answers.",
+        hint: "Meat comes from animals. Does a butcher work with animal products? Think carefully and be honest."
+    },
+    {
+        number: 6,
+        title: "🚨 Random Baggage X-Ray Check",
+        icon: "🔍",
+        question: "Your checked luggage has been selected for a random X-ray inspection at the airport. The security officer finds your butcher knife set inside. The knives are properly wrapped. What happens next?",
+        options: [
+            "A) Your knives are immediately confiscated — knives are banned in Australia",
+            "B) You are arrested for carrying weapons",
+            "C) The officer checks they are safely wrapped and confirms they are in checked baggage — this is allowed",
+            "D) You must pay a tax for bringing knives into the country"
+        ],
+        correct: 2,
+        feedback: "✅ CORRECT! Professional knives ARE allowed in checked luggage when properly packed. The security officer will verify they are safely stored. There is no ban on bringing professional tools to Australia as long as they are declared and properly packed. Stay calm and cooperate with officers.",
+        hint: "Remember — checked luggage is different from carry-on. Professional tools are generally allowed if safely packed."
+    },
+    {
+        number: 7,
+        title: "💰 Bringing Money to Australia",
+        icon: "💵",
+        question: "You are bringing \$12,000 AUD cash to Australia to set up your new life as a butcher. You arrive at customs. What must you do?",
+        options: [
+            "A) Nothing — cash is not a security problem",
+            "B) Declare the cash because it is over \$10,000 AUD limit",
+            "C) Split the money between your bags so each bag has less than \$10,000",
+            "D) Send the money by bank transfer instead — cash is not allowed"
+        ],
+        correct: 1,
+        feedback: "✅ CORRECT! In Australia, you MUST declare if you carry AUD \$10,000 or more (or the equivalent in foreign currency). You must fill in a 'Cross Border Movement of Physical Currency' form. Splitting money between bags to avoid declaration is called 'structuring' and is ILLEGAL.",
+        hint: "Australia has a specific amount of cash you can bring without declaring. What do you think that limit is?"
+    },
+    {
+        number: 8,
+        title: "🌿 Biosecurity — Wooden Cutting Board",
+        icon: "🌿",
+        question: "You want to bring your favourite wooden cutting board from home to use in Australia. You have used it many times for cutting meat and vegetables. Can you bring it into Australia?",
+        options: [
+            "A) Yes freely — it is just a piece of wood",
+            "B) No — all wooden items are banned in Australia",
+            "C) You must declare it — used wooden items may be inspected for biosecurity risk",
+            "D) Only if it is less than 30cm in size"
+        ],
+        correct: 2,
+        feedback: "✅ CORRECT! Used wooden items — especially those in contact with food, meat, or soil — must be declared. Australia is very protective of its unique plant and animal life. Bacteria, insects, or plant material can hide in wood. The officer may inspect it and decide if it can enter or must be treated/confiscated.",
+        hint: "Wood can carry insects, fungi, and bacteria. Australia's biosecurity protects unique native species."
+    },
+    {
+        number: 9,
+        title: "🤥 Caught Not Declaring an Item",
+        icon: "⚠️",
+        question: "A traveller forgot to declare a piece of cured sausage in their bag. The detector dog found it at customs. The officer says: 'Why did you not declare this?' What is the BEST response?",
+        options: [
+            "A) Say: 'That is not mine — someone put it there'",
+            "B) Run away quickly",
+            "C) Honestly explain: 'I forgot to declare it — I am sorry. I did not know it was a problem'",
+            "D) Say: 'Sausage is cooked so it is safe — you are wrong to stop me'"
+        ],
+        correct: 2,
+        feedback: "✅ CORRECT! Always be honest and respectful with customs officers. Forgetting to declare is treated differently from intentionally hiding items. Honest explanation may result in just a warning or small fine. Lying, arguing, or running can result in large fines, being detained, or banned from Australia.",
+        hint: "Customs officers have seen every excuse. What is the most respectful and honest thing to say?"
+    },
+    {
+        number: 10,
+        title: "📱 Final Check — Your Rights",
+        icon: "📱",
+        question: "You have passed all customs checks and you are now in the arrival hall of the Australian airport. A person in plain clothes (no uniform) says they are a customs officer and wants to search your phone. What should you do?",
+        options: [
+            "A) Hand over your phone immediately — you must always comply",
+            "B) Politely ask to see their official ID and badge before complying",
+            "C) Refuse completely — they have no right to your phone",
+            "D) Run to the exit and call your embassy"
+        ],
+        correct: 1,
+        feedback: "✅ CORRECT! You have the right to ask for official identification before complying with any search. Real Australian Border Force officers will always carry and show their ID. However, once you confirm they are a real officer, you ARE legally required to comply with a lawful search. Stay calm and polite throughout.",
+        hint: "Even in airports, you have legal rights. What is the first reasonable thing to check about a person claiming to be an officer?"
+    }
+];
+
+// ============================================================
+//  GAME STATE
+// ============================================================
+let currentQuestion = 0;
+let score = 0;
+let answered = false;
+
+// ============================================================
+//  FUNCTIONS
+// ============================================================
+
+function startGame() {
+    document.getElementById('start-screen').style.display = 'none';
+    loadQuestion(0);
+}
+
+function loadQuestion(index) {
+    answered = false;
+    const s = scenarios[index];
+
+    // Update student section
+    document.getElementById('scenario-number').textContent = `Scenario ${s.number} of 10`;
+    document.getElementById('scenario-title').textContent = s.title;
+    document.getElementById('question-icon').textContent = s.icon;
+    document.getElementById('question-text').textContent = s.question;
+
+    // Update score
+    document.getElementById('score-num').textContent = score;
+
+    // Reset feedback
+    const fb = document.getElementById('feedback-text');
+    fb.textContent = '';
+    fb.className = '';
+    fb.classList.remove('show');
+
+    // Hide next button
+    document.getElementById('next-btn').style.display = 'none';
+
+    // Build options
+    const container = document.getElementById('options-container');
+    container.innerHTML = '';
+
+    s.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = opt;
+        btn.onclick = () => selectAnswer(i, btn);
+        container.appendChild(btn);
+    });
+}
+
+function selectAnswer(selectedIndex, clickedBtn) {
+    if (answered) return;
+    answered = true;
+
+    const s = scenarios[currentQuestion];
+    const allBtns = document.querySelectorAll('.option-btn');
+
+    // Disable all buttons
+    allBtns.forEach(btn => btn.classList.add('disabled'));
+
+    // Show correct/wrong
+    allBtns[s.correct].classList.add('correct');
+
+    const fb = document.getElementById('feedback-text');
+
+    if (selectedIndex === s.correct) {
+        score++;
+        document.getElementById('score-num').textContent = score;
+        clickedBtn.classList.add('correct');
+        fb.textContent = s.feedback;
+        fb.className = 'correct-feedback show';
+    } else {
+        clickedBtn.classList.add('wrong');
+        fb.textContent = '❌ Not quite! ' + s.feedback;
+        fb.className = 'wrong-feedback show';
+    }
+
+    // Show next button
+    const nextBtn = document.getElementById('next-btn');
+    nextBtn.style.display = 'inline-block';
+    if (currentQuestion === 9) {
+        nextBtn.textContent = '🏁 See Results';
+    } else {
+        nextBtn.textContent = 'Next ➡️';
+    }
+}
+
+function showHint() {
+    if (answered) return;
+    const s = scenarios[currentQuestion];
+    const fb = document.getElementById('feedback-text');
+    fb.textContent = '💡 Hint: ' + s.hint;
+    fb.className = 'show';
+}
+
+function nextQuestion() {
+    if (currentQuestion < 9) {
+        currentQuestion++;
+        loadQuestion(currentQuestion);
+    } else {
+        showEndScreen();
+    }
+}
+
+function showEndScreen() {
+    const endScreen = document.getElementById('end-screen');
+    endScreen.style.display = 'flex';
+
+    document.getElementById('final-score').textContent = score + ' / 10';
+
+    let emoji, title, message;
+
+    if (score === 10) {
+        emoji = '🏆';
+        title = 'Perfect Score! Ready for Australia!';
+        message = 'Amazing! You know all the rules for arriving in Australia as a meat butcher. You are fully prepared for your airport security experience. Good luck on your new journey! 🦘🇦🇺';
+    } else if (score >= 7) {
+        emoji = '✈️';
+        title = 'Great Job! Almost Ready!';
+        message = 'You did very well! Review the questions you missed and you will be fully prepared. Australia is waiting for you! 🌏';
+    } else if (score >= 5) {
+        emoji = '📚';
+        title = 'Good Try! Keep Studying!';
+        message = 'You know some of the rules but there are a few important ones to review — especially about biosecurity and declarations. Practice again before your trip! 💪';
+    } else {
+        emoji = '🔄';
+        title = 'Let\'s Practice More!';
+        message = 'Australian customs rules can be tricky! Play again and discuss each answer with your teacher. You will get better every time! 😊';
+    }
+
+    document.getElementById('end-emoji').textContent = emoji;
+    document.getElementById('end-title').textContent = title;
+    document.getElementById('end-message').textContent = message;
+}
+
+function restartGame() {
+    currentQuestion = 0;
+    score = 0;
+    answered = false;
+    document.getElementById('end-screen').style.display = 'none';
+    loadQuestion(0);
+}
+</script>
+
+</body>
+</html>
